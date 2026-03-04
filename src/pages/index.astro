@@ -1,0 +1,214 @@
+---
+import "../styles/site.css";
+import { navItems, openSourceProjects, profile } from "../content/profile";
+
+const currentYear = new Date().getFullYear();
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Sean Liu | Home</title>
+		<meta
+			name="description"
+			content="Personal site focused on the .NET ecosystem and open-source projects, showcasing ongoing engineering capabilities and project delivery."
+		/>
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to main content</a>
+
+		<header class="global-nav">
+			<div class="nav-inner">
+				<a class="nav-brand" href="#top" aria-label="Back to top">
+					<span class="brand-glyph" aria-hidden="true">●</span>
+					<span>Sean Liu</span>
+				</a>
+				<nav class="nav-menu" aria-label="Primary">
+					{
+						navItems.map((item) => (
+							<a class="nav-link" href={item.href}>{item.label}</a>
+						))
+					}
+				</nav>
+				<a class="nav-link nav-link-strong" href="mailto:idealhs@icloud.com"
+					>Contact Me</a
+				>
+			</div>
+		</header>
+
+		<main id="main">
+			<section id="top" class="hero hero-primary reveal">
+				<h1 class="hero-title">
+					<span class="hero-hello-wrap">
+						<span id="hello-animated" class="hero-hello-text" aria-live="polite">Hello</span>
+					</span>
+					<span class="hero-name-line">
+						<span class="hero-name-main">This is Sean</span>
+						<span class="hero-name-role">{profile.role}</span>
+					</span>
+				</h1>
+				<div class="hero-actions">
+					<a class="button button-primary" href="#opensource">View Open Source Projects</a>
+					<a class="button button-link" href={profile.githubSource} target="_blank" rel="noreferrer"
+						>Visit GitHub <span aria-hidden="true">›</span></a
+					>
+				</div>
+			</section>
+
+			<section id="about" class="section reveal delay-1">
+				<div class="section-headline">
+					<h2>About</h2>
+				</div>
+				<div class="about-intro">
+					{profile.aboutIntroParagraphs.map((line) => <p>{line}</p>)}
+				</div>
+			</section>
+
+			<section id="opensource" class="section reveal delay-2">
+				<div class="section-headline">
+					<h2>Open Source Projects</h2>
+				</div>
+				<div class="oss-grid">
+					{
+						openSourceProjects.map((project) => (
+							<article class="oss-card">
+								<h3>{project.name}</h3>
+								<p>{project.description}</p>
+								<div class="oss-meta">{project.tech}</div>
+								<div class="oss-actions">
+									<a class="oss-action-link" href={project.link} target="_blank" rel="noreferrer"
+										>Open Repository <span aria-hidden="true">›</span></a
+									>
+									{
+										project.downloadAction ? (
+											project.downloadAction.menuItems?.length ? (
+												<details class="oss-dropdown">
+													<summary class="oss-action-button">
+														{project.downloadAction.label}
+														<span class="oss-dropdown-caret" aria-hidden="true">▾</span>
+													</summary>
+													<ul class="oss-dropdown-menu" aria-label={`${project.name} download options`}>
+														{
+															project.downloadAction.menuItems.map((item) => (
+																<li>
+																	{
+																		item.url ? (
+																			<a href={item.url} target="_blank" rel="noreferrer">{item.label}</a>
+																		) : (
+																			<span>{item.label} · {item.statusText ?? "暂未上架"}</span>
+																		)
+																	}
+																</li>
+															))
+														}
+													</ul>
+												</details>
+											) : project.downloadAction.url ? (
+												<a
+													class="oss-action-button"
+													href={project.downloadAction.url}
+													target="_blank"
+													rel="noreferrer"
+												>
+													{project.downloadAction.label}
+												</a>
+											) : (
+												<span
+													class="oss-action-button is-disabled"
+													title={project.downloadAction.statusText ?? ""}
+												>
+													{project.downloadAction.label}
+												</span>
+											)
+										) : null
+									}
+								</div>
+							</article>
+						))
+					}
+				</div>
+				<div class="oss-more">
+					<a
+						class="button button-link"
+						href="https://github.com/idealhs?tab=repositories"
+						target="_blank"
+						rel="noreferrer"
+					>
+						More <span aria-hidden="true">›</span>
+					</a>
+				</div>
+			</section>
+		</main>
+
+		<footer class="page-footer">
+			<div class="footer-inner">
+				<span>{currentYear} Sean Liu</span>
+			</div>
+		</footer>
+		<script is:inline>
+			const helloWords = [
+				"Hello",
+				"你好",
+				"哈囉",
+				"Hola",
+				"Bonjour",
+				"Hallo",
+				"Ciao",
+			];
+
+			const helloNode = document.getElementById("hello-animated");
+			if (helloNode instanceof HTMLElement) {
+				let index = 0;
+				const switchWord = () => {
+					index = (index + 1) % helloWords.length;
+					helloNode.classList.add("hello-exit");
+
+					window.setTimeout(() => {
+						helloNode.textContent = helloWords[index];
+						helloNode.classList.remove("hello-exit");
+						helloNode.classList.add("hello-enter");
+						window.requestAnimationFrame(() => helloNode.classList.remove("hello-enter"));
+					}, 320);
+				};
+
+				window.setInterval(switchWord, 4000);
+			}
+
+			const installDropdowns = document.querySelectorAll(".oss-dropdown");
+			if (installDropdowns.length > 0) {
+				for (const dropdown of installDropdowns) {
+					if (!(dropdown instanceof HTMLDetailsElement)) {
+						continue;
+					}
+
+					dropdown.addEventListener("focusout", () => {
+						window.setTimeout(() => {
+							const activeElement = document.activeElement;
+							if (!(activeElement instanceof Node) || !dropdown.contains(activeElement)) {
+								dropdown.open = false;
+							}
+						}, 0);
+					});
+				}
+
+				document.addEventListener("pointerdown", (event) => {
+					const target = event.target;
+					if (!(target instanceof Node)) {
+						return;
+					}
+
+					for (const dropdown of installDropdowns) {
+						if (!(dropdown instanceof HTMLDetailsElement)) {
+							continue;
+						}
+						if (!dropdown.contains(target)) {
+							dropdown.open = false;
+						}
+					}
+				});
+			}
+		</script>
+	</body>
+</html>
