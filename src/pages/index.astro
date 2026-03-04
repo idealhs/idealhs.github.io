@@ -3,6 +3,10 @@ import "../styles/site.css";
 import { navItems, openSourceProjects, profile } from "../content/profile";
 
 const currentYear = new Date().getFullYear();
+const ensureAccessibleText = (value: string | undefined | null, fallback: string) => {
+	const normalized = value?.trim();
+	return normalized && normalized.length > 0 ? normalized : fallback;
+};
 ---
 
 <html lang="en">
@@ -27,9 +31,14 @@ const currentYear = new Date().getFullYear();
 				</a>
 				<nav class="nav-menu" aria-label="Primary">
 					{
-						navItems.map((item) => (
-							<a class="nav-link" href={item.href}>{item.label}</a>
-						))
+						navItems.map((item) => {
+							const navLabel = ensureAccessibleText(item.label, "Section");
+							return (
+								<a class="nav-link" href={item.href} aria-label={navLabel}>
+									{navLabel}
+								</a>
+							);
+						})
 					}
 				</nav>
 				<a class="nav-link nav-link-strong" href="mailto:idealhs@icloud.com"
@@ -72,32 +81,59 @@ const currentYear = new Date().getFullYear();
 				</div>
 				<div class="oss-grid">
 					{
-						openSourceProjects.map((project) => (
-							<article class="oss-card">
-								<h3>{project.name}</h3>
-								<p>{project.description}</p>
+						openSourceProjects.map((project) => {
+							const projectName = ensureAccessibleText(project.name, "Open Source Project");
+							return (
+								<article class="oss-card">
+									<h3 aria-label={projectName}>{projectName}</h3>
+									<p>{project.description}</p>
 								<div class="oss-meta">{project.tech}</div>
 								<div class="oss-actions">
-									<a class="oss-action-link" href={project.link} target="_blank" rel="noreferrer"
+									<a
+										class="oss-action-link"
+										href={project.link}
+										target="_blank"
+										rel="noreferrer"
+										aria-label={`${projectName} repository`}
+									>
 										>Open Repository <span aria-hidden="true">›</span></a
 									>
 									{
 										project.downloadAction ? (
 											project.downloadAction.menuItems?.length ? (
 												<details class="oss-dropdown">
-													<summary class="oss-action-button">
-														{project.downloadAction.label}
+													<summary
+														class="oss-action-button"
+														aria-label={ensureAccessibleText(
+															project.downloadAction.label,
+															`${projectName} download options`,
+														)}
+													>
+														{ensureAccessibleText(project.downloadAction.label, "Download")}
 														<span class="oss-dropdown-caret" aria-hidden="true">▾</span>
 													</summary>
-													<ul class="oss-dropdown-menu" aria-label={`${project.name} download options`}>
+													<ul class="oss-dropdown-menu" aria-label={`${projectName} download options`}>
 														{
 															project.downloadAction.menuItems.map((item) => (
 																<li>
 																	{
 																		item.url ? (
-																			<a href={item.url} target="_blank" rel="noreferrer">{item.label}</a>
+																			<a
+																				href={item.url}
+																				target="_blank"
+																				rel="noreferrer"
+																				aria-label={ensureAccessibleText(
+																					item.label,
+																					`${projectName} download link`,
+																				)}
+																			>
+																				{ensureAccessibleText(item.label, "Download")}
+																			</a>
 																		) : (
-																			<span>{item.label} · {item.statusText ?? "暂未上架"}</span>
+																			<span>
+																				{ensureAccessibleText(item.label, "Download")} ·{" "}
+																				{item.statusText ?? "暂未上架"}
+																			</span>
 																		)
 																	}
 																</li>
@@ -111,22 +147,27 @@ const currentYear = new Date().getFullYear();
 													href={project.downloadAction.url}
 													target="_blank"
 													rel="noreferrer"
+													aria-label={ensureAccessibleText(
+														project.downloadAction.label,
+														`${projectName} download`,
+													)}
 												>
-													{project.downloadAction.label}
+													{ensureAccessibleText(project.downloadAction.label, "Download")}
 												</a>
 											) : (
 												<span
 													class="oss-action-button is-disabled"
 													title={project.downloadAction.statusText ?? ""}
 												>
-													{project.downloadAction.label}
+													{ensureAccessibleText(project.downloadAction.label, "Download")}
 												</span>
 											)
 										) : null
 									}
 								</div>
-							</article>
-						))
+								</article>
+							);
+						})
 					}
 				</div>
 				<div class="oss-more">
@@ -156,8 +197,25 @@ const currentYear = new Date().getFullYear();
 				}
 			};
 
-			syncGlobalNavHeight();
-			window.addEventListener("resize", syncGlobalNavHeight);
+			let navHeightSyncQueued = false;
+			const scheduleGlobalNavHeightSync = () => {
+				if (navHeightSyncQueued) {
+					return;
+				}
+				navHeightSyncQueued = true;
+				window.requestAnimationFrame(() => {
+					navHeightSyncQueued = false;
+					syncGlobalNavHeight();
+				});
+			};
+
+			scheduleGlobalNavHeightSync();
+			window.addEventListener("resize", scheduleGlobalNavHeightSync, { passive: true });
+
+			if ("ResizeObserver" in window && globalNav instanceof HTMLElement) {
+				const globalNavResizeObserver = new ResizeObserver(scheduleGlobalNavHeightSync);
+				globalNavResizeObserver.observe(globalNav);
+			}
 
 			const helloWords = [
 				"Hello",
@@ -170,13 +228,21 @@ const currentYear = new Date().getFullYear();
 			];
 
 			const helloNode = document.getElementById("hello-animated");
-			if (helloNode instanceof HTMLElement) {
+			const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+			if (helloNode instanceof HTMLElement && !prefersReducedMotion.matches) {
 				let index = 0;
+				let helloSwitchIntervalId = 0;
+				let helloTransitionTimeoutId = 0;
+
 				const switchWord = () => {
 					index = (index + 1) % helloWords.length;
 					helloNode.classList.add("hello-exit");
 
-					window.setTimeout(() => {
+					if (helloTransitionTimeoutId !== 0) {
+						window.clearTimeout(helloTransitionTimeoutId);
+					}
+
+					helloTransitionTimeoutId = window.setTimeout(() => {
 						helloNode.textContent = helloWords[index];
 						helloNode.classList.remove("hello-exit");
 						helloNode.classList.add("hello-enter");
@@ -184,16 +250,56 @@ const currentYear = new Date().getFullYear();
 					}, 320);
 				};
 
-				window.setInterval(switchWord, 4000);
+				const startHelloSwitch = () => {
+					if (helloSwitchIntervalId === 0) {
+						helloSwitchIntervalId = window.setInterval(switchWord, 4000);
+					}
+				};
+
+				const stopHelloSwitch = () => {
+					if (helloSwitchIntervalId !== 0) {
+						window.clearInterval(helloSwitchIntervalId);
+						helloSwitchIntervalId = 0;
+					}
+					if (helloTransitionTimeoutId !== 0) {
+						window.clearTimeout(helloTransitionTimeoutId);
+						helloTransitionTimeoutId = 0;
+					}
+				};
+
+				startHelloSwitch();
+				document.addEventListener("visibilitychange", () => {
+					if (document.hidden) {
+						stopHelloSwitch();
+					} else {
+						startHelloSwitch();
+					}
+				});
 			}
 
-			const installDropdowns = document.querySelectorAll(".oss-dropdown");
+			const installDropdowns = Array.from(document.querySelectorAll(".oss-dropdown")).filter(
+				(dropdown) => dropdown instanceof HTMLDetailsElement,
+			);
+
 			if (installDropdowns.length > 0) {
-				for (const dropdown of installDropdowns) {
-					if (!(dropdown instanceof HTMLDetailsElement)) {
-						continue;
+				const closeOpenedDropdowns = (targetNode) => {
+					const openedDropdowns = document.querySelectorAll(".oss-dropdown[open]");
+					if (openedDropdowns.length === 0) {
+						return;
 					}
 
+					for (const dropdown of openedDropdowns) {
+						if (!(dropdown instanceof HTMLDetailsElement)) {
+							continue;
+						}
+						if (targetNode instanceof Node && dropdown.contains(targetNode)) {
+							continue;
+						}
+						dropdown.open = false;
+					}
+				};
+
+				for (const dropdown of installDropdowns) {
 					dropdown.addEventListener("focusout", () => {
 						window.setTimeout(() => {
 							const activeElement = document.activeElement;
@@ -205,19 +311,7 @@ const currentYear = new Date().getFullYear();
 				}
 
 				document.addEventListener("pointerdown", (event) => {
-					const target = event.target;
-					if (!(target instanceof Node)) {
-						return;
-					}
-
-					for (const dropdown of installDropdowns) {
-						if (!(dropdown instanceof HTMLDetailsElement)) {
-							continue;
-						}
-						if (!dropdown.contains(target)) {
-							dropdown.open = false;
-						}
-					}
+					closeOpenedDropdowns(event.target);
 				});
 			}
 		</script>
