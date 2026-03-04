@@ -53,7 +53,7 @@ export const openSourceProjects: OpenSourceProject[] = [
 				},
 				{
 					label: "Chrome Web Store",
-					statusText: "暂未上架",
+					statusText: "Coming soon",
 				},
 			],
 		},
