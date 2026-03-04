@@ -15,6 +15,7 @@
 	--radius-lg: 22px;
 	--radius-md: 16px;
 	--container: min(1040px, calc(100% - 2rem));
+	--global-nav-height: 48px;
 	--font-system:
 		-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC",
 		"Helvetica Neue", "Segoe UI", Arial, sans-serif;
@@ -40,6 +41,28 @@ body {
 	background: var(--bg-page);
 	color: var(--text-primary);
 	line-height: 1.45;
+	position: relative;
+	isolation: isolate;
+}
+
+body::before {
+	content: "";
+	position: fixed;
+	top: 0;
+	left: 50%;
+	width: 100vw;
+	height: clamp(320px, 58vh, 560px);
+	transform: translateX(-50%);
+	background:
+		linear-gradient(180deg, rgba(245, 245, 247, 0) 70%, var(--bg-page) 100%),
+		linear-gradient(
+			90deg,
+			rgba(194, 224, 255, 0.58) 0%,
+			rgba(210, 234, 255, 0.34) 46%,
+			rgba(235, 246, 255, 0) 100%
+		);
+	pointer-events: none;
+	z-index: -1;
 }
 
 a {
@@ -136,6 +159,26 @@ main {
 .hero-primary {
 	padding: 5.7rem 0 4.6rem;
 	text-align: left;
+	position: sticky;
+	top: var(--global-nav-height);
+	z-index: 40;
+	isolation: isolate;
+}
+
+.hero-primary::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 50%;
+	width: 100vw;
+	transform: translateX(-50%);
+	background: rgba(245, 245, 247, 0.56);
+	backdrop-filter: saturate(150%) blur(14px);
+	-webkit-backdrop-filter: saturate(150%) blur(14px);
+	border-bottom: 1px solid rgba(210, 210, 215, 0.48);
+	pointer-events: none;
+	z-index: -1;
 }
 
 .eyebrow {

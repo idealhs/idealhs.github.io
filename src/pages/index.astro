@@ -148,6 +148,17 @@ const currentYear = new Date().getFullYear();
 			</div>
 		</footer>
 		<script is:inline>
+			const rootNode = document.documentElement;
+			const globalNav = document.querySelector(".global-nav");
+			const syncGlobalNavHeight = () => {
+				if (globalNav instanceof HTMLElement) {
+					rootNode.style.setProperty("--global-nav-height", `${globalNav.offsetHeight}px`);
+				}
+			};
+
+			syncGlobalNavHeight();
+			window.addEventListener("resize", syncGlobalNavHeight);
+
 			const helloWords = [
 				"Hello",
 				"你好",
