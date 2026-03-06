@@ -166,23 +166,33 @@ main {
 	position: sticky;
 	top: var(--global-nav-height);
 	z-index: 40;
-	isolation: isolate;
+}
+
+.hero-primary > * {
+	position: relative;
+	z-index: 1;
 }
 
 .hero-primary::before {
 	content: "";
 	position: absolute;
-	top: 0;
+	top: -1px;
 	bottom: 0;
 	left: 50%;
 	width: 100vw;
 	transform: translateX(-50%);
-	background: rgba(245, 245, 247, 0.2);
-	backdrop-filter: saturate(150%) blur(14px);
-	-webkit-backdrop-filter: saturate(150%) blur(14px);
+	background: rgba(245, 245, 247, 0.88);
 	border-bottom: 1px solid rgba(210, 210, 215, 0.48);
 	pointer-events: none;
-	z-index: -1;
+	z-index: 0;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+	.hero-primary::before {
+		background: rgba(245, 245, 247, 0.2);
+		backdrop-filter: saturate(150%) blur(14px);
+		-webkit-backdrop-filter: saturate(150%) blur(14px);
+	}
 }
 
 h1 {

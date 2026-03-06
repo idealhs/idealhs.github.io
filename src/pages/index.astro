@@ -48,8 +48,8 @@ const ensureAccessibleText = (value: string | undefined | null, fallback: string
 		</header>
 
 		<main id="main">
-			<section id="top" class="hero hero-primary reveal">
-				<h1 class="hero-title">
+			<section id="top" class="hero hero-primary">
+				<h1 class="hero-title reveal">
 					<span class="hero-hello-wrap">
 						<span id="hello-animated" class="hero-hello-text" aria-live="polite">Hello</span>
 					</span>
@@ -58,7 +58,7 @@ const ensureAccessibleText = (value: string | undefined | null, fallback: string
 						<span class="hero-name-role">{profile.role}</span>
 					</span>
 				</h1>
-				<div class="hero-actions">
+				<div class="hero-actions reveal delay-1">
 					<a class="button button-primary" href="#opensource">View Open Source Projects</a>
 					<a class="button button-link" href={profile.githubSource} target="_blank" rel="noreferrer"
 						>Visit GitHub <span aria-hidden="true">›</span></a
@@ -66,7 +66,7 @@ const ensureAccessibleText = (value: string | undefined | null, fallback: string
 				</div>
 			</section>
 
-			<section id="about" class="section reveal delay-1">
+			<section id="about" class="section reveal delay-2">
 				<div class="section-headline">
 					<h2>About</h2>
 				</div>
