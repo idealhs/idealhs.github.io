@@ -191,9 +191,15 @@ const ensureAccessibleText = (value: string | undefined | null, fallback: string
 		<script is:inline>
 			const rootNode = document.documentElement;
 			const globalNav = document.querySelector(".global-nav");
+			const heroPrimary = document.querySelector(".hero-primary");
 			const syncGlobalNavHeight = () => {
 				if (globalNav instanceof HTMLElement) {
 					rootNode.style.setProperty("--global-nav-height", `${globalNav.offsetHeight}px`);
+				}
+			};
+			const syncHeroHeight = () => {
+				if (heroPrimary instanceof HTMLElement) {
+					rootNode.style.setProperty("--hero-height", `${heroPrimary.offsetHeight}px`);
 				}
 			};
 
@@ -206,15 +212,20 @@ const ensureAccessibleText = (value: string | undefined | null, fallback: string
 				window.requestAnimationFrame(() => {
 					navHeightSyncQueued = false;
 					syncGlobalNavHeight();
+					syncHeroHeight();
 				});
 			};
 
 			scheduleGlobalNavHeightSync();
 			window.addEventListener("resize", scheduleGlobalNavHeightSync, { passive: true });
 
-			if ("ResizeObserver" in window && globalNav instanceof HTMLElement) {
-				const globalNavResizeObserver = new ResizeObserver(scheduleGlobalNavHeightSync);
-				globalNavResizeObserver.observe(globalNav);
+			if ("ResizeObserver" in window) {
+				if (globalNav instanceof HTMLElement) {
+					new ResizeObserver(scheduleGlobalNavHeightSync).observe(globalNav);
+				}
+				if (heroPrimary instanceof HTMLElement) {
+					new ResizeObserver(scheduleGlobalNavHeightSync).observe(heroPrimary);
+				}
 			}
 
 			const helloWords = [
