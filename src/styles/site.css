@@ -167,7 +167,7 @@ main {
 }
 
 .hero-primary {
-	padding: 3.2rem 0 2.4rem;
+	padding: 0.5rem 0 1rem;
 	text-align: left;
 	position: sticky;
 	top: var(--global-nav-height);
@@ -216,7 +216,7 @@ h1 {
 	text-align: left;
 	gap: 0.07em;
 	width: fit-content;
-	margin: 0.55rem 0 0;
+	margin: 0;
 }
 
 .hero-hello-wrap {
@@ -579,7 +579,7 @@ a.oss-action-button:focus-visible {
 
 @media (max-width: 1068px) {
 	.hero-primary {
-		padding-top: 2.8rem;
+		padding: 0.5rem 0 1rem;
 	}
 }
 
@@ -588,20 +588,53 @@ a.oss-action-button:focus-visible {
 		--container: min(100%, calc(100% - 1.2rem));
 	}
 
+	.global-nav {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+
+	.global-nav::-webkit-scrollbar {
+		display: none;
+	}
+
 	.nav-inner {
 		height: auto;
-		padding: 0.75rem 0;
-		align-items: flex-start;
-		flex-direction: column;
+		min-height: 48px;
+		width: max-content;
+		min-width: 100%;
+		padding: 0.75rem 0.6rem;
+		align-items: center;
+		flex-wrap: nowrap;
+		gap: 0.75rem;
+	}
+
+	.nav-brand,
+	.nav-menu {
+		flex: 0 0 auto;
+	}
+
+	.nav-brand {
+		font-size: 0.76rem;
 	}
 
 	.nav-menu {
-		gap: 0.9rem;
-		flex-wrap: wrap;
+		gap: 0.8rem;
+		flex-wrap: nowrap;
+	}
+
+	.nav-actions {
+		flex: 0 0 auto;
+		gap: 0.75rem;
+	}
+
+	.nav-link {
+		font-size: 0.72rem;
+		white-space: nowrap;
 	}
 
 	.hero-primary {
-		padding: 2rem 0 1.6rem;
+		padding: 0.5rem 0 1rem;
 	}
 
 	.hero-actions {
